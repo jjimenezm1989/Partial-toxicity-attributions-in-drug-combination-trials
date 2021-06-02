@@ -1,0 +1,34 @@
+model{
+  
+  C <- 10000
+  
+  for (i in 1:N) {
+    
+    zeros[i] ~ dpois(phi[i])
+    
+    phi[i] <- -log(L[i]) + C
+    
+    #Define small parts of the likelihood (L[i]) and then put them together to form the likelihood
+    
+    L[i] <- Z[i]*A[i]*eta*g[i] + Z[i]*(1-A[i])*(1-eta)*(p10[i]+p01[i]+p11[i]) + (1-Z[i])*(1-(p10[i]+p01[i]+p11[i]))
+    
+    #Define pi^(delta1=1,delta2=0), pi^(delta1=0,delta2=1) and pi^(delta1=1,delta2=1)
+    
+    p10[i] <- X[i]^alpha*(1-Y[i]^beta) - X[i]^alpha*(1-X[i]^alpha)*Y[i]^beta*(1-Y[i]^beta)*((exp(-gamma)-1)/(exp(-gamma)+1))
+    p01[i] <- Y[i]^beta*(1-X[i]^alpha) - X[i]^alpha*(1-X[i]^alpha)*Y[i]^beta*(1-Y[i]^beta)*((exp(-gamma)-1)/(exp(-gamma)+1))
+    p11[i] <- (X[i]^alpha)*(Y[i]^beta) + X[i]^alpha*(1-X[i]^alpha)*Y[i]^beta*(1-Y[i]^beta)*((exp(-gamma)-1)/(exp(-gamma)+1))
+    
+    p00[i] <- (1 - X[i]^alpha)*(1 - Y[i]^beta) + X[i]^alpha*(1-X[i]^alpha)*Y[i]^beta*(1-Y[i]^beta)*((exp(-gamma)-1)/(exp(-gamma)+1))
+    
+    #Define pi^(delta1,delta2)
+    
+    g[i] <- (X[i]^alpha)^D1[i]*(1-X[i]^alpha)^(1-D1[i])*(Y[i]^beta)^D2[i]*(1-Y[i]^beta)^(1-D2[i]) + (-1)^(D1[i]+D2[i])*X[i]^alpha*(1-X[i]^alpha)*Y[i]^beta*(1-Y[i]^beta)*((exp(-gamma)-1)/(exp(-gamma)+1))
+    
+  }
+  
+  alpha ~ dunif(a1,b1)
+  beta ~ dunif(a2,b2)
+  gamma ~ dgamma(a3,b3)
+  eta ~ dunif(a4,b4)
+  
+}
